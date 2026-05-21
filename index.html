@@ -1,366 +1,197 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Instagram Unfollower Checker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram Not Following Back</title>
 
-  <style>
-    body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: #fafafa;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
+  body {
+    font-family: Arial;
+    margin: 0;
+    padding: 15px;
+    background: #f5f5f5;
+  }
 
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      padding: 20px;
-    }
+  h2 {
+    text-align: center;
+  }
 
-    h1 {
-      color: #262626;
-      font-size: 20px;
-      text-align: center;
-      margin-bottom: 10px;
-    }
+  .card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: auto;
+  }
 
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
+  input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
 
-    input[type="file"] {
-      margin-top: 5px;
-      width: 100%;
-    }
+  /* MAIN BUTTON */
+  .main-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+  }
 
-    button {
-      margin-top: 20px;
-      background-color: #0095f6;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 16px;
-    }
+  .main-btn:active {
+    transform: scale(0.98);
+  }
 
-    button:hover {
-      background-color: #0077cc;
-    }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
 
-    ul {
-      list-style-type: none;
-      padding-left: 0;
-      margin-top: 20px;
-    }
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafafa;
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    word-break: break-word;
+  }
 
-    li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-      gap: 10px;
-    }
+  /* COPY BUTTON */
+  .copy-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
 
-    .username {
-      color: #262626;
-      word-break: break-all;
-      font-size: 14px;
-      flex-grow: 1;
-      text-decoration: none;
-    }
+  .copy-btn:active {
+    transform: scale(0.95);
+  }
 
-    .username:hover {
-      text-decoration: underline;
-    }
-
-    .copy-btn {
-      background-color: #efefef;
-      color: #333;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      min-width: 60px;
-      text-align: center;
-    }
-
-    .copy-btn:hover {
-      background-color: #ddd;
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 12px;
-      color: #aaa;
-    }
-
-    .message {
-      text-align: center;
-      margin-top: 20px;
-      font-weight: bold;
-      color: #555;
-    }
-
-    @media (max-width: 480px) {
-      .copy-btn {
-        font-size: 11px;
-        min-width: 50px;
-      }
-    }
-  </style>
+  .title {
+    margin-top: 20px;
+  }
+</style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="card">
 
-  <a href="aboutus.html">About</a>
+<h2>Instagram Checker</h2>
 
-  <h1>Instagram Unfollower Checker</h1>
+<p>Upload followers_1.json</p>
+<input type="file" id="followersFile" accept=".json">
 
-  <label for="followers">
-    Upload followers_1.json:
-  </label>
+<p>Upload following.json</p>
+<input type="file" id="followingFile" accept=".json">
 
-  <input type="file" id="followers" accept=".json">
+<button class="main-btn" onclick="compare()">Find Not Following Back</button>
 
-  <label for="following">
-    Upload following.json:
-  </label>
+<h3 class="title">❌ Not Following You Back</h3>
+<ul id="notBack"></ul>
 
-  <input type="file" id="following" accept=".json">
-
-  <button onclick="checkUnfollows()">
-    Check Who Doesn't Follow Back
-  </button>
-
-  <div class="message" id="message"></div>
-
-  <ul id="result"></ul>
-
-</div>
-
-<div class="footer">
-  Instagram Unfollower Checker
 </div>
 
 <script>
+function extractFollowers(data) {
+  const users = new Set();
 
-async function checkUnfollows() {
+  data.forEach(item => {
+    const list = item?.string_list_data;
 
-  const followersFile =
-    document.getElementById('followers').files[0];
+    if (Array.isArray(list) && list[0]?.value) {
+      users.add(list[0].value);
+    }
+  });
 
-  const followingFile =
-    document.getElementById('following').files[0];
+  return users;
+}
 
-  const resultEl =
-    document.getElementById('result');
+function extractFollowing(data) {
+  const users = new Set();
 
-  const messageEl =
-    document.getElementById('message');
+  const list = data?.relationships_following || [];
 
-  resultEl.innerHTML = "";
-  messageEl.innerHTML = "";
+  list.forEach(item => {
+    if (item?.title) {
+      users.add(item.title);
+    }
+  });
 
-  if (!followersFile || !followingFile) {
-    alert("Please upload both JSON files.");
+  return users;
+}
+
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = e => {
+      try {
+        resolve(JSON.parse(e.target.result));
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  alert("Copied: @" + text);
+}
+
+async function compare() {
+  const f1 = document.getElementById("followersFile").files[0];
+  const f2 = document.getElementById("followingFile").files[0];
+
+  if (!f1 || !f2) {
+    alert("Please upload both files");
     return;
   }
 
-  try {
+  const followersJSON = await readFile(f1);
+  const followingJSON = await readFile(f2);
 
-    const followers =
-      await readJSON(followersFile);
+  const followers = extractFollowers(followersJSON);
+  const following = extractFollowing(followingJSON);
 
-    const following =
-      await readJSON(followingFile);
+  const notBack = [...following].filter(u => !followers.has(u));
 
-    console.log("Followers Data:", followers);
-    console.log("Following Data:", following);
+  const list = document.getElementById("notBack");
+  list.innerHTML = "";
 
-    // -------------------------
-    // Parse followers
-    // -------------------------
-
-    const followersSet = new Set();
-
-    const followersData =
-      followers.relationships_followers || followers;
-
-    for (const entry of followersData || []) {
-
-      for (const item of entry.string_list_data || []) {
-
-        if (item.value) {
-          followersSet.add(item.value);
-        }
-
-      }
-
-    }
-
-    // -------------------------
-    // Parse following
-    // -------------------------
-
-    const followingSet = new Set();
-
-    const followingData =
-      following.relationships_following || following;
-
-    for (const entry of followingData || []) {
-
-      for (const item of entry.string_list_data || []) {
-
-        if (item.value) {
-          followingSet.add(item.value);
-        }
-
-      }
-
-    }
-
-    // -------------------------
-    // Find users who don't follow back
-    // -------------------------
-
-    const nonFollowBack = [...followingSet]
-      .filter(user => !followersSet.has(user))
-      .sort((a, b) => a.localeCompare(b));
-
-    // -------------------------
-    // Display results
-    // -------------------------
-
-    if (nonFollowBack.length === 0) {
-
-      messageEl.textContent =
-        "Everyone you're following follows you back 😊";
-
-      return;
-    }
-
-    messageEl.textContent =
-      `${nonFollowBack.length} users don't follow you back`;
-
-    for (const user of nonFollowBack) {
-
-      const li = document.createElement("li");
-
-      // Instagram profile link
-      const link = document.createElement("a");
-
-      link.className = "username";
-      link.textContent = user;
-
-      // FIXED LINK
-      link.href =
-        "https://www.instagram.com/" +
-        encodeURIComponent(user);
-
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-
-      // Copy button
-      const btn = document.createElement("button");
-
-      btn.textContent = "Copy";
-      btn.className = "copy-btn";
-
-      btn.onclick = async (e) => {
-
-        e.preventDefault();
-
-        try {
-
-          await navigator.clipboard.writeText(user);
-
-          const oldText = btn.textContent;
-
-          btn.textContent = "Copied!";
-
-          setTimeout(() => {
-            btn.textContent = oldText;
-          }, 1000);
-
-        } catch (err) {
-
-          alert("Copy failed");
-
-          console.error(err);
-
-        }
-
-      };
-
-      li.appendChild(link);
-      li.appendChild(btn);
-
-      resultEl.appendChild(li);
-
-    }
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Error reading files.\n\n" +
-      "Make sure you uploaded the correct Instagram JSON files."
-    );
-
+  if (notBack.length === 0) {
+    list.innerHTML = "<li>Everyone follows you back 🎉</li>";
+    return;
   }
 
-}
+  notBack.forEach(u => {
+    const li = document.createElement("li");
 
-// -------------------------
-// Read JSON File
-// -------------------------
+    li.innerHTML = `
+      <span>@${u}</span>
+      <button class="copy-btn" onclick="copyText('${u}')">Copy</button>
+    `;
 
-function readJSON(file) {
-
-  return new Promise((resolve, reject) => {
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-
-      try {
-
-        const parsed =
-          JSON.parse(reader.result);
-
-        resolve(parsed);
-
-      } catch (err) {
-
-        reject(err);
-
-      }
-
-    };
-
-    reader.onerror = () => reject(reader.error);
-
-    reader.readAsText(file);
-
+    list.appendChild(li);
   });
-
 }
-
 </script>
 
 </body>
