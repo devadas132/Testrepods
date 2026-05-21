@@ -12,9 +12,7 @@
     background: #f5f5f5;
   }
 
-  h2 {
-    text-align: center;
-  }
+  h2 { text-align: center; }
 
   .card {
     background: white;
@@ -33,7 +31,6 @@
     box-sizing: border-box;
   }
 
-  /* MAIN BUTTON */
   .main-btn {
     width: 100%;
     padding: 12px;
@@ -43,10 +40,6 @@
     color: white;
     border: none;
     border-radius: 8px;
-  }
-
-  .main-btn:active {
-    transform: scale(0.98);
   }
 
   ul {
@@ -65,7 +58,6 @@
     word-break: break-word;
   }
 
-  /* COPY BUTTON */
   .copy-btn {
     padding: 6px 10px;
     font-size: 12px;
@@ -73,15 +65,26 @@
     color: white;
     border: none;
     border-radius: 6px;
-    cursor: pointer;
   }
 
-  .copy-btn:active {
-    transform: scale(0.95);
+  /* 🔥 Toast message */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: black;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    transition: 0.3s;
+    pointer-events: none;
   }
 
-  .title {
-    margin-top: 20px;
+  .toast.show {
+    opacity: 1;
   }
 </style>
 </head>
@@ -92,26 +95,35 @@
 
 <h2>Instagram Checker</h2>
 
-<p>Upload followers_1.json</p>
 <input type="file" id="followersFile" accept=".json">
-
-<p>Upload following.json</p>
 <input type="file" id="followingFile" accept=".json">
 
 <button class="main-btn" onclick="compare()">Find Not Following Back</button>
 
-<h3 class="title">❌ Not Following You Back</h3>
+<h3>❌ Not Following You Back</h3>
 <ul id="notBack"></ul>
 
 </div>
 
+<!-- Toast -->
+<div id="toast" class="toast">Copied</div>
+
 <script>
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 1200);
+}
+
 function extractFollowers(data) {
   const users = new Set();
 
   data.forEach(item => {
     const list = item?.string_list_data;
-
     if (Array.isArray(list) && list[0]?.value) {
       users.add(list[0].value);
     }
@@ -153,7 +165,7 @@ function readFile(file) {
 
 function copyText(text) {
   navigator.clipboard.writeText(text);
-  alert("Copied: @" + text);
+  showToast("Copied @" + text);
 }
 
 async function compare() {
